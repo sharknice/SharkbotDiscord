@@ -26,7 +26,7 @@ namespace SharkbotDiscord.Services.Bot
                     Emoji emoji = null;
                     try
                     {
-                        emoji = new Emoji(chat.Trim());
+                        //emoji = new Emoji(chat.Trim());
                     }
                     catch (Exception)
                     {

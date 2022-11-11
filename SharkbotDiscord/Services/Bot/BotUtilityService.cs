@@ -50,7 +50,7 @@ namespace SharkbotDiscord.Services.Bot
 
         public bool alwaysRespond(SocketUserMessage e)
         {
-            if (e.Channel.GetChannelType() == ChannelType.DM || e.MentionedUsers.Contains(discord.CurrentUser) || e.Content.Contains(discord.CurrentUser.Username) || configuration.NickNames.Any(nickName => e.Content.ToLower().Contains(nickName.ToLower())))
+            if (e.Channel.GetChannelType() == ChannelType.DM || e.MentionedUsers.Any(u => u.Username == discord.CurrentUser.Username) || e.Content.Contains(discord.CurrentUser.Username) || configuration.NickNames.Any(nickName => e.Content.ToLower().Contains(nickName.ToLower())))
             {
                 return true;
             }

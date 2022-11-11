@@ -88,7 +88,7 @@ namespace SharkbotDiscord.Services
 
                 var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
                 if (hasRequiredProperty)
-                {
+                 {
                     var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
                     requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
                 }
@@ -107,19 +107,14 @@ namespace SharkbotDiscord.Services
                 }
             }
 
-            var context = new SocketCommandContext(_discord, msg);     // Create the command context
-
-            int argPos = 0;     // Check if the message has a valid command prefix
-
-            Console.WriteLine(msg);
-
-            if (msg.HasStringPrefix(_config["prefix"], ref argPos) || msg.HasMentionPrefix(_discord.CurrentUser, ref argPos))
+            string tag = $"#{msg.Channel.Name}";
+            var chnl = msg.Channel as SocketGuildChannel;
+            if (chnl != null)
             {
-                var result = await _commands.ExecuteAsync(context, argPos, _provider);     // Execute the command
-
-                if (!result.IsSuccess)     // If not successful, reply with the error.
-                    await context.Channel.SendMessageAsync(result.ToString());
+                tag = $"{chnl.Guild.Name}{tag}";
             }
+
+            Console.WriteLine($"{tag} {msg.Author.Username}: {msg}");
         }
 
         async void UpdateStatus()
