@@ -9,11 +9,13 @@ namespace SharkbotDiscord.Services.Bot
     {
         IDiscordClient discord;
         BotUtilityService utilityService;
+        EmojiService emojiService;
 
-        public RequiredPropertyResponseService(IDiscordClient discordClient, BotUtilityService botUtilityService)
+        public RequiredPropertyResponseService(IDiscordClient discordClient, BotUtilityService botUtilityService, EmojiService botEmojiService)
         {
             discord = discordClient;
             utilityService = botUtilityService;
+            emojiService = botEmojiService;
         }
 
         public async void hasRequiredPropertyResponse(SocketUserMessage e, ChatResponse chatResponse, ChannelSettings channelSettings)
@@ -26,7 +28,7 @@ namespace SharkbotDiscord.Services.Bot
                     Emoji emoji = null;
                     try
                     {
-                        //emoji = new Emoji(chat.Trim());
+                        emoji = emojiService.getEmoji(e, chat.Trim());
                     }
                     catch (Exception)
                     {

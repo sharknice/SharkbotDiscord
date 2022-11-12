@@ -28,6 +28,7 @@ namespace SharkbotDiscord.Services
         static RequiredPropertyResponseService requiredPropertyResponseService;
         static ImageResponseUtility imageResponseUtility;
         static GenerateImageResponseService generateImageResponseService;
+        static EmojiService emojiService;
         static ImageGenerationService imageGenerationService;
         static RequiredSettingsLoader requiredSettingsLoader;
         static OptionalSettingsLoader optionalSettingsLoader;
@@ -63,11 +64,12 @@ namespace SharkbotDiscord.Services
             imageResponseUtility = new ImageResponseUtility();
             imageGenerationService = new ImageGenerationService(discord, client, apiUtilityService, botConfiguration);
             generateImageResponseService = new GenerateImageResponseService();
+            emojiService = new EmojiService(discord);
 
             botUtilityService = new BotUtilityService(_discord, botConfiguration);
             sharkbotCommandService = new SharkbotCommandService(botConfiguration, channelbotConfiguration);
             botReactionService = new BotReactionService(botConfiguration, new EmojiService(_discord));
-            requiredPropertyResponseService = new RequiredPropertyResponseService(_discord, botUtilityService);
+            requiredPropertyResponseService = new RequiredPropertyResponseService(_discord, botUtilityService, emojiService);
 
             _discord.MessageReceived += OnMessageReceivedAsync;
         }

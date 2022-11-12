@@ -14,7 +14,8 @@ namespace SharkbotDiscord.Services.Bot
 
         public Emoji getEmoji(SocketUserMessage e, string chat)
         {
-            return new Emoji(chat);
+            Emoji.TryParse(chat, out var emoji);
+            return emoji;
         }
     }
 }
