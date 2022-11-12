@@ -28,10 +28,10 @@ namespace SharkbotDiscord.Services.ImageGeneration
 
             if (string.IsNullOrWhiteSpace(userName))
             {
-                if (text.ToLower().Contains("yourself"))
+                if (generationText.ToLower().Contains("yourself"))
                 {
                     userName = discord.CurrentUser.Username;
-                    generationText.Replace("yourself", discord.CurrentUser.Username);
+                    generationText = generationText.Replace("yourself", discord.CurrentUser.Username);
                 }
                 else
                 {
