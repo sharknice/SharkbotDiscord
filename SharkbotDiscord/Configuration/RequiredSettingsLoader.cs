@@ -9,6 +9,7 @@ namespace SharkbotDiscord.Configuration
         {     
             botConfiguration.Token = configuration.GetSection("Token").Value;
             botConfiguration.ApiUrl = configuration.GetSection("ApiUrl").Value;
+            botConfiguration.ImageApiUrl = configuration.GetSection("ImageApiUrl").Value;
             botConfiguration.BotName = configuration.GetSection("BotName").Value;
             botConfiguration.ChatType = configuration.GetSection("ChatType").Value;
 

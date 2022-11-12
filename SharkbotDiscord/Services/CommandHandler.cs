@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using SharkbotDiscord.Configuration;
 using SharkbotDiscord.Services.Api;
 using SharkbotDiscord.Services.Bot;
+using SharkbotDiscord.Services.ImageGeneration;
 using SharkbotDiscord.Services.Models;
 
 namespace SharkbotDiscord.Services
@@ -25,6 +26,9 @@ namespace SharkbotDiscord.Services
         static SharkbotCommandService sharkbotCommandService;
         static BotReactionService botReactionService;
         static RequiredPropertyResponseService requiredPropertyResponseService;
+        static ImageResponseUtility imageResponseUtility;
+        static GenerateImageResponseService generateImageResponseService;
+        static ImageGenerationService imageGenerationService;
         static RequiredSettingsLoader requiredSettingsLoader;
         static OptionalSettingsLoader optionalSettingsLoader;
 
@@ -56,6 +60,9 @@ namespace SharkbotDiscord.Services
             userDetailService = new UserDetailService(client, botConfiguration);
             reactionService = new ReactionService(client, apiUtilityService, botConfiguration);
             reactionAddService = new ReactionAddService(client, apiUtilityService, botConfiguration);
+            imageResponseUtility = new ImageResponseUtility();
+            imageGenerationService = new ImageGenerationService(client, apiUtilityService, botConfiguration);
+            generateImageResponseService = new GenerateImageResponseService();
 
             botUtilityService = new BotUtilityService(_discord, botConfiguration);
             sharkbotCommandService = new SharkbotCommandService(botConfiguration, channelbotConfiguration);
@@ -83,28 +90,36 @@ namespace SharkbotDiscord.Services
             }
             else if (!botUtilityService.ignoreMessage(msg))
             {
-                var reaction = await reactionService.GetReactionAsync(msg);
-                botReactionService.reactionResponse(msg, reaction, channel.ChannelSettings);
-
-                var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
-                if (hasRequiredProperty)
-                 {
-                    var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
-                    requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
+                if (imageResponseUtility.AskingForImageResponse(msg))
+                {
+                    var imagePath = await imageGenerationService.GenerateImageResponseAsync(msg);
+                    generateImageResponseService.GenerateImageResponse(msg, imagePath);
                 }
                 else
                 {
-                    var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
-                    hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
-                    if (!hasRequiredProperty && botUtilityService.alwaysRespond(msg))
+                    var reaction = await reactionService.GetReactionAsync(msg);
+                    botReactionService.reactionResponse(msg, reaction, channel.ChannelSettings);
+
+                    var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
+                    if (hasRequiredProperty)
                     {
-                        botUtilityService.defaultResponse(msg);
+                        var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
+                        requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
                     }
                     else
                     {
-                        requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
+                        var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
+                        hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
+                        if (!hasRequiredProperty && botUtilityService.alwaysRespond(msg))
+                        {
+                            botUtilityService.defaultResponse(msg);
+                        }
+                        else
+                        {
+                            requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
+                        }
                     }
-                }
+                }            
             }
 
             string tag = $"#{msg.Channel.Name}";

@@ -6,6 +6,7 @@ namespace SharkbotDiscord.Services.Models
     {
         public string Token { get; set; }
         public string ApiUrl { get; set; }
+        public string ImageApiUrl { get; set; }
         public string BotName { get; set; }
         public List<string> IgnoredChannels { get; set; }
         public string ChatType { get; set; }
