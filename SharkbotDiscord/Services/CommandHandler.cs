@@ -61,7 +61,7 @@ namespace SharkbotDiscord.Services
             reactionService = new ReactionService(client, apiUtilityService, botConfiguration);
             reactionAddService = new ReactionAddService(client, apiUtilityService, botConfiguration);
             imageResponseUtility = new ImageResponseUtility();
-            imageGenerationService = new ImageGenerationService(client, apiUtilityService, botConfiguration);
+            imageGenerationService = new ImageGenerationService(discord, client, apiUtilityService, botConfiguration);
             generateImageResponseService = new GenerateImageResponseService();
 
             botUtilityService = new BotUtilityService(_discord, botConfiguration);
@@ -90,9 +90,10 @@ namespace SharkbotDiscord.Services
             }
             else if (!botUtilityService.ignoreMessage(msg))
             {
-                if (imageResponseUtility.AskingForImageResponse(msg))
+                var imageGenerationText = imageResponseUtility.AskingForImageResponse(msg);
+                if (imageGenerationText != null)
                 {
-                    var imagePath = await imageGenerationService.GenerateImageResponseAsync(msg);
+                    var imagePath = await imageGenerationService.GenerateImageResponseAsync(msg, imageGenerationText.Text, imageGenerationText.UserName);
                     generateImageResponseService.GenerateImageResponse(msg, imagePath);
                 }
                 else
