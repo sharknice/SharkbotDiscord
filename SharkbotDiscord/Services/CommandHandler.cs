@@ -86,11 +86,7 @@ namespace SharkbotDiscord.Services
             {
                 await chatUpdateService.UpdateChatAsync(msg);
             }
-            else if (sharkbotCommandService.command(msg, channel))
-            {
-
-            }
-            else if (!botUtilityService.ignoreMessage(msg))
+            else if (sharkbotCommandService.command(msg, channel) || imageResponseUtility.AskingForImageResponse(msg) != null)
             {
                 var imageGenerationText = imageResponseUtility.AskingForImageResponse(msg);
                 if (imageGenerationText != null)
@@ -98,31 +94,31 @@ namespace SharkbotDiscord.Services
                     var imagePath = await imageGenerationService.GenerateImageResponseAsync(msg, imageGenerationText.Text, imageGenerationText.UserName);
                     generateImageResponseService.GenerateImageResponse(msg, imagePath);
                 }
+            }
+            else if (!botUtilityService.ignoreMessage(msg))
+            {            
+                var reaction = await reactionService.GetReactionAsync(msg);
+                botReactionService.reactionResponse(msg, reaction, channel.ChannelSettings);
+
+                var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
+                if (hasRequiredProperty)
+                {
+                    var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
+                    requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
+                }
                 else
                 {
-                    var reaction = await reactionService.GetReactionAsync(msg);
-                    botReactionService.reactionResponse(msg, reaction, channel.ChannelSettings);
-
-                    var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
-                    if (hasRequiredProperty)
+                    var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
+                    hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
+                    if (!hasRequiredProperty && botUtilityService.alwaysRespond(msg))
                     {
-                        var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
-                        requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
+                        botUtilityService.defaultResponse(msg);
                     }
                     else
                     {
-                        var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
-                        hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
-                        if (!hasRequiredProperty && botUtilityService.alwaysRespond(msg))
-                        {
-                            botUtilityService.defaultResponse(msg);
-                        }
-                        else
-                        {
-                            requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
-                        }
+                        requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
                     }
-                }            
+                }
             }
 
             string tag = $"#{msg.Channel.Name}";
