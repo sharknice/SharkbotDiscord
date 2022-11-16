@@ -12,13 +12,14 @@ namespace SharkbotDiscord.Services.ImageGeneration
         public async void GenerateImageResponse(SocketUserMessage e, string imagePath)
         {
             var filename = Path.GetFileName(imagePath);
-            File.Copy(imagePath, filename);
+            Directory.CreateDirectory("images");
+            File.Copy(imagePath, "images/" + filename);
 
             var emb = new EmbedBuilder()
                 .WithImageUrl($"attachment://{filename}")
             .Build();
 
-            await e.Channel.SendFileAsync(filename, null, false, emb);
+            await e.Channel.SendFileAsync("images/" + filename, null, false, emb);
         }
     }
 }
