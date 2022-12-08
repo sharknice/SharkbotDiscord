@@ -89,8 +89,8 @@ namespace SharkbotDiscord.Services.ImageGeneration
                                 0,
                                 0,
                                 false,
-                                512,
-                                512,
+                                768,
+                                768,
                                 false,
                                 0.7,
                                 0,
@@ -120,8 +120,8 @@ namespace SharkbotDiscord.Services.ImageGeneration
             ImageApiResponse result = JsonConvert.DeserializeObject<ImageApiResponse>(jsonResponse);
 
             var data = JsonConvert.DeserializeObject<ImageApiResponseData>(Convert.ToString(result.data[0]).Replace("\r\n", "").Replace("[", "").Replace("]", ""));
-           
-            return data.name;
+
+            return $"{configuration.ImageApiDirectory}/{Path.GetFileName(data.name)}";
         }
 
         string GetProperties(UserData userData)
