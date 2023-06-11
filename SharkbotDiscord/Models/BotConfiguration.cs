@@ -7,6 +7,8 @@ namespace SharkbotDiscord.Services.Models
         public string Token { get; set; }
         public string ApiUrl { get; set; }
         public string ImageApiUrl { get; set; }
+        public string MusicApiUrl { get; set; }
+
         public string ImageApiDirectory { get; set; }
         public string BotName { get; set; }
         public List<string> IgnoredChannels { get; set; }

@@ -11,6 +11,7 @@ namespace SharkbotDiscord.Configuration
             botConfiguration.ApiUrl = configuration.GetSection("ApiUrl").Value;
             botConfiguration.ImageApiUrl = configuration.GetSection("ImageApiUrl").Value;
             botConfiguration.ImageApiDirectory = configuration.GetSection("ImageApiDirectory").Value;
+            botConfiguration.MusicApiUrl = configuration.GetSection("MusicApiUrl").Value;
             botConfiguration.BotName = configuration.GetSection("BotName").Value;
             botConfiguration.ChatType = configuration.GetSection("ChatType").Value;
 

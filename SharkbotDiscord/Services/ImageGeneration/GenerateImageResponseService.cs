@@ -19,7 +19,7 @@ namespace SharkbotDiscord.Services.ImageGeneration
                 .WithImageUrl($"attachment://{filename}")
             .Build();
 
-            await e.Channel.SendFileAsync("images/" + filename, null, false, emb);
+            await e.Channel.SendFileAsync("images/" + filename, null, false, emb, messageReference: new MessageReference(e.Id));
         }
     }
 }

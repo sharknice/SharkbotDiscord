@@ -6,6 +6,7 @@ using SharkbotDiscord.Services.Api;
 using SharkbotDiscord.Services.Bot;
 using SharkbotDiscord.Services.ImageGeneration;
 using SharkbotDiscord.Services.Models;
+using SharkbotDiscord.Services.MusicGeneration;
 
 namespace SharkbotDiscord.Services
 {
@@ -30,6 +31,9 @@ namespace SharkbotDiscord.Services
         static GenerateImageResponseService generateImageResponseService;
         static EmojiService emojiService;
         static ImageGenerationService imageGenerationService;
+        static MusicResponseUtility musicResponseUtility;
+        static MusicGenerationService musicGenerationService;
+        static GenerateMusicResponseService generateMusicResponseService;
         static RequiredSettingsLoader requiredSettingsLoader;
         static OptionalSettingsLoader optionalSettingsLoader;
 
@@ -66,6 +70,10 @@ namespace SharkbotDiscord.Services
             generateImageResponseService = new GenerateImageResponseService();
             emojiService = new EmojiService(discord);
 
+            musicResponseUtility = new MusicResponseUtility();
+            musicGenerationService = new MusicGenerationService(discord, client, apiUtilityService, botConfiguration);
+            generateMusicResponseService = new GenerateMusicResponseService();
+
             botUtilityService = new BotUtilityService(_discord, botConfiguration);
             sharkbotCommandService = new SharkbotCommandService(botConfiguration, channelbotConfiguration);
             botReactionService = new BotReactionService(botConfiguration, new EmojiService(_discord));
@@ -86,13 +94,19 @@ namespace SharkbotDiscord.Services
             {
                 await chatUpdateService.UpdateChatAsync(msg);
             }
-            else if (sharkbotCommandService.command(msg, channel) || imageResponseUtility.AskingForImageResponse(msg) != null)
+            else if (sharkbotCommandService.command(msg, channel) || imageResponseUtility.AskingForImageResponse(msg) != null || musicResponseUtility.AskingForMusicResponse(msg) != null)
             {
                 var imageGenerationText = imageResponseUtility.AskingForImageResponse(msg);
                 if (imageGenerationText != null)
                 {
                     var imagePath = await imageGenerationService.GenerateImageResponseAsync(msg, imageGenerationText.Text, imageGenerationText.UserName);
                     generateImageResponseService.GenerateImageResponse(msg, imagePath);
+                }
+                var musicGenerationText = musicResponseUtility.AskingForMusicResponse(msg);
+                if (musicGenerationText != null)
+                {
+                    var musicPath = await musicGenerationService.GenerateMusicResponseAsync(msg, musicGenerationText.Text, musicGenerationText.UserName);
+                    generateMusicResponseService.GenerateMusicResponse(msg, musicPath);
                 }
             }
             else if (!botUtilityService.ignoreMessage(msg))
