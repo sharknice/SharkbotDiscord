@@ -2,8 +2,9 @@
 Sharkbot the discord chatbot.  It uses the sharkbot api for chat and stable diffusion for drawing images.
 
 ## setup
-- Run the sharkbot API https://github.com/sharkson/sharkbot
-- Run the stable diffusion web ui https://github.com/AUTOMATIC1111/stable-diffusion-webui
+- Run the sharkbot API for text chat https://github.com/sharkson/sharkbot
+- Run the stable diffusion web ui for image generation https://github.com/AUTOMATIC1111/stable-diffusion-webui
+- Run audiocraft for music generation https://github.com/facebookresearch/audiocraft
 - Create your appsettings.json file
 - create your discord application and bot https://discordapp.com/developers/applications/
 - add your bot token to the appsettings.json file
