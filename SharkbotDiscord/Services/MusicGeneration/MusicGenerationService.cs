@@ -13,12 +13,12 @@ namespace SharkbotDiscord.Services.MusicGeneration
         ApiUtilityService utilityService;
         BotConfiguration configuration;
 
-        public MusicGenerationService(DiscordSocketClient discordClient, HttpClient httpClient, ApiUtilityService apiUtilityService, BotConfiguration botCnfiguration)
+        public MusicGenerationService(DiscordSocketClient discordClient, HttpClient httpClient, ApiUtilityService apiUtilityService, BotConfiguration botConfiguration)
         {
             discord = discordClient;
             client = httpClient;
             utilityService = apiUtilityService;
-            configuration = botCnfiguration;
+            configuration = botConfiguration;
         }
 
         public async Task<string> GenerateMusicResponseAsync(SocketUserMessage e, string text, string userName)

@@ -7,6 +7,7 @@ using SharkbotDiscord.Services.Bot;
 using SharkbotDiscord.Services.ImageGeneration;
 using SharkbotDiscord.Services.Models;
 using SharkbotDiscord.Services.MusicGeneration;
+using SharkbotDiscord.Services.Ollama;
 
 namespace SharkbotDiscord.Services
 {
@@ -21,6 +22,8 @@ namespace SharkbotDiscord.Services
         static ReactionService reactionService;
         static ReactionAddService reactionAddService;
         static ChatResponseService chatResponseService;
+        static OllamaResponseService ollamaResponseService;
+        static DirectedReplyCheckService directedReplyCheckService;
         static ChatUpdateService chatUpdateService;
         static ChannelConfigurationService channelbotConfiguration;
         static BotUtilityService botUtilityService;
@@ -37,6 +40,9 @@ namespace SharkbotDiscord.Services
         static RequiredSettingsLoader requiredSettingsLoader;
         static OptionalSettingsLoader optionalSettingsLoader;
 
+        static BotConfiguration botConfiguration;
+        static Random random;
+
         // DiscordSocketClient, CommandService, IConfigurationRoot, and IServiceProvider are injected automatically from the IServiceProvider
         public CommandHandler(
             DiscordSocketClient discord,
@@ -50,7 +56,7 @@ namespace SharkbotDiscord.Services
             _provider = provider;
 
             var client = new HttpClient();
-            var botConfiguration = new BotConfiguration();
+            botConfiguration = new BotConfiguration();
             requiredSettingsLoader = new RequiredSettingsLoader();
             optionalSettingsLoader = new OptionalSettingsLoader();
             botConfiguration = requiredSettingsLoader.LoadRequiredSettings(config, botConfiguration);
@@ -61,6 +67,8 @@ namespace SharkbotDiscord.Services
             var apiUtilityService = new ApiUtilityService(botConfiguration);
 
             chatResponseService = new ChatResponseService(client, apiUtilityService, botConfiguration);
+            ollamaResponseService = new OllamaResponseService(client, apiUtilityService, botConfiguration);
+            directedReplyCheckService = new DirectedReplyCheckService(client, apiUtilityService, botConfiguration);
             chatUpdateService = new ChatUpdateService(client, apiUtilityService, botConfiguration);
             userDetailService = new UserDetailService(client, botConfiguration);
             reactionService = new ReactionService(client, apiUtilityService, botConfiguration);
@@ -78,6 +86,8 @@ namespace SharkbotDiscord.Services
             sharkbotCommandService = new SharkbotCommandService(botConfiguration, channelbotConfiguration);
             botReactionService = new BotReactionService(botConfiguration, new EmojiService(_discord));
             requiredPropertyResponseService = new RequiredPropertyResponseService(_discord, botUtilityService, emojiService);
+
+            random = new Random();
 
             _discord.MessageReceived += OnMessageReceivedAsync;
         }
@@ -110,27 +120,51 @@ namespace SharkbotDiscord.Services
                 }
             }
             else if (!botUtilityService.ignoreMessage(msg))
-            {            
+            {
                 var reaction = await reactionService.GetReactionAsync(msg);
                 botReactionService.reactionResponse(msg, reaction, channel.ChannelSettings);
 
-                var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
-                if (hasRequiredProperty)
+                if (!string.IsNullOrEmpty(botConfiguration.OllamaApiUrl))
                 {
-                    var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
-                    requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
-                }
-                else
-                {
-                    var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
-                    hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
-                    if (!hasRequiredProperty && botUtilityService.alwaysRespond(msg))
+                    await chatUpdateService.UpdateChatAsync(msg);
+
+                    var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
+                    var randomChance = random.NextDouble();
+                    if (hasRequiredProperty || botConfiguration.OllamaChance > randomChance)
                     {
-                        botUtilityService.defaultResponse(msg);
+                        var ollamaChatResponse = await ollamaResponseService.GetChatResponseAsync(msg);
+                        requiredPropertyResponseService.hasRequiredPropertyResponse(msg, ollamaChatResponse, channel.ChannelSettings);
                     }
                     else
                     {
+                        var directedReplyConfidence = await directedReplyCheckService.DirectedReplyAsync(msg);
+                        if (botConfiguration.OllamaReplyChance * directedReplyConfidence > randomChance)
+                        {
+                            var ollamaChatResponse = await ollamaResponseService.GetChatResponseAsync(msg);
+                            requiredPropertyResponseService.hasRequiredPropertyResponse(msg, ollamaChatResponse, channel.ChannelSettings);
+                        }
+                    }
+                }
+                else
+                {
+                    var hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
+                    if (hasRequiredProperty)
+                    {
+                        var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
                         requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
+                    }
+                    else
+                    {
+                        var chatResponse = await chatResponseService.GetChatResponseAsync(msg);
+                        hasRequiredProperty = await userDetailService.HasRequiredPropertyAsync(msg);
+                        if (!hasRequiredProperty && botUtilityService.alwaysRespond(msg))
+                        {
+                            botUtilityService.defaultResponse(msg);
+                        }
+                        else
+                        {
+                            requiredPropertyResponseService.hasRequiredPropertyResponse(msg, chatResponse, channel.ChannelSettings);
+                        }
                     }
                 }
             }

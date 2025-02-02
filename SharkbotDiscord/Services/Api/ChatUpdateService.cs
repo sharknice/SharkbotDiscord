@@ -11,11 +11,11 @@ namespace SharkbotDiscord.Services.Api
         ApiUtilityService utilityService;
         BotConfiguration configuration;
 
-        public ChatUpdateService(HttpClient httpClient, ApiUtilityService apiUtilityService, BotConfiguration botCnfiguration)
+        public ChatUpdateService(HttpClient httpClient, ApiUtilityService apiUtilityService, BotConfiguration botConfiguration)
         {
             client = httpClient;
             utilityService = apiUtilityService;
-            configuration = botCnfiguration;
+            configuration = botConfiguration;
         }
 
         public async Task<bool> UpdateChatAsync(SocketUserMessage e)

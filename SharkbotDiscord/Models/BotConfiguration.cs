@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
-
-namespace SharkbotDiscord.Services.Models
+﻿namespace SharkbotDiscord.Services.Models
 {
     public class BotConfiguration
     {
         public string Token { get; set; }
         public string ApiUrl { get; set; }
+        public string OllamaApiUrl { get; set; }
         public string ImageApiUrl { get; set; }
         public string MusicApiUrl { get; set; }
 
+        public string OllamaModel { get; set; }
+        public string OllamaSystemPrompt { get; set; }
+        public double OllamaConfidence { get; set; }
+        public double OllamaChance { get; set; }
+        public double OllamaReplyChance { get; set; }
         public string ImageApiDirectory { get; set; }
         public string BotName { get; set; }
         public List<string> IgnoredChannels { get; set; }

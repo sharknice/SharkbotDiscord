@@ -67,6 +67,48 @@ namespace SharkbotDiscord.Configuration
                 botConfiguration.MongoDbConnectionString = connectionStringSection.Value;
             }
 
+            var ollamaApiUrl = configuration.GetSection("OllamaApiUrl");
+            botConfiguration.DefaultResponse = string.Empty;
+            if (ollamaApiUrl.Value != null)
+            {
+                botConfiguration.OllamaApiUrl = ollamaApiUrl.Value;
+            }
+
+            var ollamaModel = configuration.GetSection("OllamaModel");
+            botConfiguration.OllamaModel = string.Empty;
+            if (ollamaModel.Value != null)
+            {
+                botConfiguration.OllamaModel = ollamaModel.Value;
+            }
+
+            var ollamaSystemPrompt = configuration.GetSection("OllamaSystemPrompt");
+            botConfiguration.OllamaSystemPrompt = string.Empty;
+            if (ollamaSystemPrompt.Value != null)
+            {
+                botConfiguration.OllamaSystemPrompt = ollamaSystemPrompt.Value;
+            }
+
+            var ollamaConfidence = configuration.GetSection("OllamaConfidence");
+            botConfiguration.OllamaConfidence = 0;
+            if (ollamaConfidence.Value != null)
+            {
+                botConfiguration.OllamaConfidence = double.Parse(ollamaConfidence.Value);
+            }
+
+            var ollamaChance = configuration.GetSection("OllamaChance");
+            botConfiguration.OllamaChance = 0;
+            if (ollamaChance.Value != null)
+            {
+                botConfiguration.OllamaChance = double.Parse(ollamaChance.Value);
+            }
+
+            var ollamaReplyChance = configuration.GetSection("OllamaReplyChance");
+            botConfiguration.OllamaReplyChance = 0;
+            if (ollamaReplyChance.Value != null)
+            {
+                botConfiguration.OllamaReplyChance = double.Parse(ollamaReplyChance.Value);
+            }
+
             return botConfiguration;
         }
     }

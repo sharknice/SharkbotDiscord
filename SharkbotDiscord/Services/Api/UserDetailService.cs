@@ -26,6 +26,7 @@ namespace SharkbotDiscord.Services.Api
             var jsonResponse = await response.Content.ReadAsStringAsync();
             var userData = JsonConvert.DeserializeObject<UserData>(jsonResponse);
 
+            if (!configuration.RequiredProperyMatches.Any()) { return false; }
             return configuration.RequiredProperyMatches.All(rp => userData.derivedProperties.Any(dp => dp.name == rp));
         }
     }
