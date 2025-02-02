@@ -49,8 +49,20 @@ namespace SharkbotDiscord.Services.Ollama
                 messages.Add(new OllamaMessage { Role = "system", Content = $"You are talking with user:{userName}." });
             }
 
-            // TODO: add a system content for each user in the conversation with all their user data
-            // TODO: could also wikipedia subjects or something
+            var userResponse = await client.GetAsync(configuration.ApiUrl + "/api/user/" + userName);
+            userResponse.EnsureSuccessStatusCode();
+            var userJsonResponse = await userResponse.Content.ReadAsStringAsync();
+            var userData = JsonConvert.DeserializeObject<UserData>(userJsonResponse);
+            if (userData.derivedProperties != null)
+            {
+                foreach (var userProperty in userData.derivedProperties.DistinctBy(p => p.name + p.value))
+                {
+                    messages.Add(new OllamaMessage { Role = "system", Content = $"{userName}'s {userProperty.name} is {userProperty.value}" });
+                }
+            }
+
+            messages.Add(new OllamaMessage { Role = "system", Content = $"The time is {DateTime.Now.ToString("F")}" });
+
             foreach (var chat in conversationData.responses)
             {
                 if (chat.chat.user == chat.botName)

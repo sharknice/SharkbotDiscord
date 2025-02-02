@@ -50,6 +50,11 @@ namespace SharkbotDiscord.Services.Ollama
                 }
             }
 
+            if (lastMessage != null && !conversationData.groupChat && lastMessage.naturalLanguageData.sentences.Any(s => s.SentenceType == SentenceType.Interrogative))
+            {
+                return 1;
+            }
+
             if (conversationData.responses.Count() == 1 && lastMessage.chat.user != lastMessage.chat.botName)
             {
                 if (conversationData.groupChat)
